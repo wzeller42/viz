@@ -172,6 +172,78 @@ describe('AGPUtils', () => {
         });
       });
     });
+
+    context('bucket-based sensor usage calculations', () => {
+      it('should use bucketsFilled and totalBuckets for sensor usage calculation', () => {
+        const bucketTestData = _.cloneDeep(cbgAGPData);
+        
+        _.each(bucketTestData.data.current.aggregationsByDate.statsByDate, (stats, date) => {
+          stats.sensorUsage.bucketsFilled = 200;
+          stats.sensorUsage.totalBuckets = 288;
+          stats.sensorUsage.count = 200; // Ensure sufficient count for 1+ hour requirement
+        });
+
+        const result = AGPUtils.calculateCGMDataSufficiency(bucketTestData);
+        
+        expect(result.ambulatoryGlucoseProfile).to.be.false;
+        expect(result.dailyGlucoseProfiles).to.be.true;
+        expect(result.glucoseMetrics).to.be.true;
+        expect(result.percentInRanges).to.be.true;
+      });
+
+      it('should handle missing bucket fields gracefully', () => {
+        const noBucketData = _.cloneDeep(cbgAGPData);
+        
+        delete noBucketData.data.current.aggregationsByDate.statsByDate['2023-03-15'].sensorUsage.bucketsFilled;
+        delete noBucketData.data.current.aggregationsByDate.statsByDate['2023-03-15'].sensorUsage.totalBuckets;
+
+        const result = AGPUtils.calculateCGMDataSufficiency(noBucketData);
+        
+        expect(result.ambulatoryGlucoseProfile).to.be.true;
+        expect(result.dailyGlucoseProfiles).to.be.true;
+        expect(result.glucoseMetrics).to.be.true;
+        expect(result.percentInRanges).to.be.true;
+      });
+
+      it('should calculate sensor usage correctly with bucket approach', () => {
+        const mixedBucketData = _.cloneDeep(cbgAGPData);
+        
+        const dates = Object.keys(mixedBucketData.data.current.aggregationsByDate.statsByDate);
+        dates.forEach((date, index) => {
+          const stats = mixedBucketData.data.current.aggregationsByDate.statsByDate[date].sensorUsage;
+          if (index < 4) {
+            stats.bucketsFilled = 230;
+            stats.totalBuckets = 288;
+            stats.count = 230;
+          } else {
+            stats.bucketsFilled = 173;
+            stats.totalBuckets = 288;
+            stats.count = 173;
+          }
+        });
+
+        const result = AGPUtils.calculateCGMDataSufficiency(mixedBucketData);
+        
+        expect(result.ambulatoryGlucoseProfile).to.be.true;
+        expect(result.dailyGlucoseProfiles).to.be.true;
+        expect(result.glucoseMetrics).to.be.true;
+        expect(result.percentInRanges).to.be.true;
+      });
+
+      it('should handle zero totalBuckets gracefully', () => {
+        const zeroBucketData = _.cloneDeep(cbgAGPData);
+        
+        zeroBucketData.data.current.aggregationsByDate.statsByDate['2023-03-15'].sensorUsage.totalBuckets = 0;
+        zeroBucketData.data.current.aggregationsByDate.statsByDate['2023-03-15'].sensorUsage.bucketsFilled = 0;
+
+        const result = AGPUtils.calculateCGMDataSufficiency(zeroBucketData);
+        
+        expect(result.ambulatoryGlucoseProfile).to.be.true;
+        expect(result.dailyGlucoseProfiles).to.be.true;
+        expect(result.glucoseMetrics).to.be.true;
+        expect(result.percentInRanges).to.be.true;
+      });
+    });
   });
 
   describe('calculateBGMDataSufficiency', () => {
