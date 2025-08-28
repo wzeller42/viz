@@ -4,7 +4,7 @@ import moment from 'moment-timezone';
 
 import { getTotalBasalFromEndpoints, getBasalGroupDurationsFromEndpoints } from './basal';
 import { getTotalBolus } from './bolus';
-import { cgmSampleFrequency, classifyBgValue } from './bloodglucose';
+import { cgmSampleFrequency, classifyBgValue, calculateSensorUsageWithBuckets } from './bloodglucose';
 import { BGM_DATA_KEY, MGDL_UNITS, MGDL_PER_MMOLL, MS_IN_DAY, MS_IN_MIN } from './constants';
 
 /* eslint-disable lodash/prefer-lodash-method, no-underscore-dangle, no-param-reassign */
@@ -265,19 +265,11 @@ export class StatUtil {
     const cbgData = this.dataUtil.filter.byType('cbg').top(Infinity);
     const count = cbgData.length;
 
-    // Data for Tidepool sensor usage stat
-    const duration = _.reduce(
-      cbgData,
-      (result, datum) => {
-        result += cgmSampleFrequency(datum);
-        return result;
-      },
-      0
-    );
-
     const total = this.activeDays * MS_IN_DAY;
+    
+    const bucketResult = calculateSensorUsageWithBuckets(cbgData, total);
+    const duration = (bucketResult.sensorUsage / 100) * total;
 
-    // Data for AGP sensor usage stat
     const rawCbgData = this.dataUtil.sort.byTime(_.cloneDeep(cbgData));
     const { newestDatum, oldestDatum } = this.getBgExtentsData();
     const sampleFrequency = cgmSampleFrequency(newestDatum);
@@ -292,10 +284,8 @@ export class StatUtil {
       cgmMinutesWorn = Math.ceil(moment.utc(newestDatum?.time).diff(moment.utc(oldestDatum?.time), 'minutes', true));
     }
 
-    const sensorUsageAGP = (
-      count /
-      ((cgmMinutesWorn / (sampleFrequency / MS_IN_MIN)) + 1)
-    ) * 100;
+    const totalPossibleBuckets = Math.ceil((cgmMinutesWorn * MS_IN_MIN) / (5 * MS_IN_MIN));
+    const sensorUsageAGP = totalPossibleBuckets > 0 ? (bucketResult.bucketsFilled / totalPossibleBuckets) * 100 : 0;
 
     return {
       sensorUsage: duration,
@@ -303,6 +293,8 @@ export class StatUtil {
       total,
       sampleFrequency,
       count,
+      bucketsFilled: bucketResult.bucketsFilled,
+      totalBuckets: bucketResult.totalBuckets,
     };
   };
 

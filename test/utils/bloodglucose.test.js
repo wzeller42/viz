@@ -1025,5 +1025,66 @@ describe('blood glucose utilities', () => {
       });
     });
   });
+
+  describe('calculateSensorUsageWithBuckets', () => {
+    it('should calculate sensor usage with no duplicates correctly', () => {
+      const cbgData = [
+        { time: '2023-01-01T00:00:00Z', deviceId: 'Dexcom_XXXXXXX' },
+        { time: '2023-01-01T00:05:00Z', deviceId: 'Dexcom_XXXXXXX' },
+        { time: '2023-01-01T00:10:00Z', deviceId: 'Dexcom_XXXXXXX' },
+      ];
+      const totalTimeMs = 15 * MS_IN_MIN;
+      
+      const result = bgUtils.calculateSensorUsageWithBuckets(cbgData, totalTimeMs);
+      expect(result.sensorUsage).to.equal(100);
+      expect(result.bucketsFilled).to.equal(3);
+      expect(result.totalBuckets).to.equal(3);
+    });
+
+    it('should prevent >100% usage with duplicate data points', () => {
+      const cbgData = [
+        { time: '2023-01-01T00:00:00Z', deviceId: 'Dexcom_XXXXXXX' },
+        { time: '2023-01-01T00:01:00Z', deviceId: 'Dexcom_XXXXXXX' },
+        { time: '2023-01-01T00:05:00Z', deviceId: 'Dexcom_XXXXXXX' },
+      ];
+      const totalTimeMs = 10 * MS_IN_MIN;
+      
+      const result = bgUtils.calculateSensorUsageWithBuckets(cbgData, totalTimeMs);
+      expect(result.sensorUsage).to.be.at.most(100);
+      expect(result.bucketsFilled).to.equal(2);
+    });
+
+    it('should handle 15-minute intervals correctly (Libre)', () => {
+      const cbgData = [
+        { time: '2023-01-01T00:00:00Z', deviceId: 'AbbottFreeStyleLibre_XXXXXXX' },
+        { time: '2023-01-01T00:15:00Z', deviceId: 'AbbottFreeStyleLibre_XXXXXXX' },
+      ];
+      const totalTimeMs = 30 * MS_IN_MIN;
+      
+      const result = bgUtils.calculateSensorUsageWithBuckets(cbgData, totalTimeMs);
+      expect(result.bucketsFilled).to.equal(6);
+      expect(result.totalBuckets).to.equal(6);
+      expect(result.sensorUsage).to.equal(100);
+    });
+
+    it('should handle empty data', () => {
+      const result = bgUtils.calculateSensorUsageWithBuckets([], 10 * MS_IN_MIN);
+      expect(result.sensorUsage).to.equal(0);
+      expect(result.bucketsFilled).to.equal(0);
+      expect(result.totalBuckets).to.equal(0);
+    });
+
+    it('should handle blackout period correctly', () => {
+      const cbgData = [
+        { time: '2023-01-01T00:00:00Z', deviceId: 'Dexcom_XXXXXXX' },
+        { time: '2023-01-01T00:04:00Z', deviceId: 'Dexcom_XXXXXXX' },
+        { time: '2023-01-01T00:05:00Z', deviceId: 'Dexcom_XXXXXXX' },
+      ];
+      const totalTimeMs = 10 * MS_IN_MIN;
+      
+      const result = bgUtils.calculateSensorUsageWithBuckets(cbgData, totalTimeMs);
+      expect(result.bucketsFilled).to.equal(2);
+    });
+  });
 });
 /* eslint-enable max-len */

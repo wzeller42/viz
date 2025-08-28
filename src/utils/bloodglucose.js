@@ -246,6 +246,52 @@ export function cgmSampleFrequency(datum) {
 }
 
 /**
+ * Calculate sensor usage using 5-minute bucket strategy to prevent >100% usage from duplicates
+ * @param {Array} cbgData - Array of CGM data points sorted by time
+ * @param {Number} totalTimeMs - Total time period in milliseconds
+ * @returns {Object} - { sensorUsage: percentage, bucketsFilled: count, totalBuckets: count }
+ */
+export function calculateSensorUsageWithBuckets(cbgData, totalTimeMs) {
+  if (!cbgData || cbgData.length === 0) {
+    return { sensorUsage: 0, bucketsFilled: 0, totalBuckets: 0 };
+  }
+
+  const BUCKET_SIZE_MS = 5 * MS_IN_MIN;
+  const BLACKOUT_THRESHOLD_MS = 4 * MS_IN_MIN + 50 * 1000;
+  
+  const totalBuckets = Math.ceil(totalTimeMs / BUCKET_SIZE_MS);
+  const filledBuckets = new Set();
+  
+  const sortedData = _.sortBy(cbgData, 'time');
+  
+  let lastProcessedTime = null;
+  
+  for (const datum of sortedData) {
+    const currentTime = new Date(datum.time).getTime();
+    
+    if (lastProcessedTime && (currentTime - lastProcessedTime) <= BLACKOUT_THRESHOLD_MS) {
+      continue;
+    }
+    
+    const sampleInterval = cgmSampleFrequency(datum);
+    const bucketsToFill = Math.ceil(sampleInterval / BUCKET_SIZE_MS);
+    
+    const startBucket = Math.floor((currentTime - new Date(sortedData[0].time).getTime()) / BUCKET_SIZE_MS);
+    
+    for (let i = 0; i < bucketsToFill && (startBucket + i) < totalBuckets; i++) {
+      filledBuckets.add(startBucket + i);
+    }
+    
+    lastProcessedTime = currentTime;
+  }
+  
+  const bucketsFilled = filledBuckets.size;
+  const sensorUsage = totalBuckets > 0 ? (bucketsFilled / totalBuckets) * 100 : 0;
+  
+  return { sensorUsage, bucketsFilled, totalBuckets };
+}
+
+/**
  * Determine if a patient is using a custom target bg range
  *
  * @param {Object} bgPrefs - bgPrefs object containing viz-style bgBounds and the bgUnits

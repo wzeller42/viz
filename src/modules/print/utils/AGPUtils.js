@@ -89,6 +89,8 @@ export const calculateCGMDataSufficiency = (data = {}) => {
     const {
       count: countForDate,
       sampleFrequency: sampleFrequencyForDate,
+      bucketsFilled: bucketsFilledForDate,
+      totalBuckets: totalBucketsForDate,
     } = statsByDate[date]?.sensorUsage || {};
 
     const {
@@ -102,19 +104,10 @@ export const calculateCGMDataSufficiency = (data = {}) => {
 
     const minCount = MS_IN_HOUR / sampleFrequencyForDate;
 
-    let maxPossibleReadings = 0;
-    if (index === 0) {
-      maxPossibleReadings = bankersRound((MS_IN_DAY - oldestDatumForDate.msPer24) / sampleFrequencyForDate);
-    } else if (index === cgmCalendarDays.length - 1) {
-      maxPossibleReadings = bankersRound(newestDatumForDate.msPer24 / sampleFrequencyForDate);
-    } else {
-      maxPossibleReadings = bankersRound(MS_IN_DAY / sampleFrequencyForDate);
-    }
-
-    const sensorUsage = maxPossibleReadings > 0 ? countForDate / maxPossibleReadings * 100 : 0;
+    const sensorUsage = totalBucketsForDate > 0 ? (bucketsFilledForDate / totalBucketsForDate) * 100 : 0;
     const sufficiencyMet = countForDate >= minCount;
 
-    return ({ count: countForDate, date, maxPossibleReadings, sensorUsage, sufficiencyMet });
+    return ({ count: countForDate, date, bucketsFilledForDate, totalBucketsForDate, sensorUsage, sufficiencyMet });
   });
 
   // AGP section requires that each day in the top 7 have at least an hour of data, and an average
