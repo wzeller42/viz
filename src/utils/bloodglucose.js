@@ -273,7 +273,7 @@ export function calculateSensorUsageWithBuckets(cbgData, totalTimeMs) {
       continue;
     }
     
-    const sampleInterval = cgmSampleFrequency(datum);
+    const sampleInterval = datum.sampleInterval || cgmSampleFrequency(datum);
     const bucketsToFill = Math.ceil(sampleInterval / BUCKET_SIZE_MS);
     
     const startBucket = Math.floor((currentTime - new Date(sortedData[0].time).getTime()) / BUCKET_SIZE_MS);

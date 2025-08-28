@@ -1041,6 +1041,34 @@ describe('blood glucose utilities', () => {
       expect(result.totalBuckets).to.equal(3);
     });
 
+    it('should use sampleInterval field when available', () => {
+      const cbgData = [
+        { time: '2023-01-01T00:00:00Z', sampleInterval: 5 * MS_IN_MIN },
+        { time: '2023-01-01T00:05:00Z', sampleInterval: 5 * MS_IN_MIN },
+        { time: '2023-01-01T00:10:00Z', sampleInterval: 5 * MS_IN_MIN },
+      ];
+      const totalTimeMs = 15 * MS_IN_MIN;
+      
+      const result = bgUtils.calculateSensorUsageWithBuckets(cbgData, totalTimeMs);
+      expect(result.sensorUsage).to.equal(100);
+      expect(result.bucketsFilled).to.equal(3);
+      expect(result.totalBuckets).to.equal(3);
+    });
+
+    it('should fall back to cgmSampleFrequency when sampleInterval not defined', () => {
+      const cbgData = [
+        { time: '2023-01-01T00:00:00Z', deviceId: 'Dexcom_XXXXXXX' },
+        { time: '2023-01-01T00:05:00Z', sampleInterval: 5 * MS_IN_MIN },
+        { time: '2023-01-01T00:10:00Z', deviceId: 'Dexcom_XXXXXXX' },
+      ];
+      const totalTimeMs = 15 * MS_IN_MIN;
+      
+      const result = bgUtils.calculateSensorUsageWithBuckets(cbgData, totalTimeMs);
+      expect(result.sensorUsage).to.equal(100);
+      expect(result.bucketsFilled).to.equal(3);
+      expect(result.totalBuckets).to.equal(3);
+    });
+
     it('should prevent >100% usage with duplicate data points', () => {
       const cbgData = [
         { time: '2023-01-01T00:00:00Z', deviceId: 'Dexcom_XXXXXXX' },
@@ -1064,6 +1092,47 @@ describe('blood glucose utilities', () => {
       const result = bgUtils.calculateSensorUsageWithBuckets(cbgData, totalTimeMs);
       expect(result.bucketsFilled).to.equal(6);
       expect(result.totalBuckets).to.equal(6);
+      expect(result.sensorUsage).to.equal(100);
+    });
+
+    it('should handle 15-minute intervals with sampleInterval field', () => {
+      const cbgData = [
+        { time: '2023-01-01T00:00:00Z', sampleInterval: 15 * MS_IN_MIN },
+        { time: '2023-01-01T00:15:00Z', sampleInterval: 15 * MS_IN_MIN },
+      ];
+      const totalTimeMs = 30 * MS_IN_MIN;
+      
+      const result = bgUtils.calculateSensorUsageWithBuckets(cbgData, totalTimeMs);
+      expect(result.bucketsFilled).to.equal(6);
+      expect(result.totalBuckets).to.equal(6);
+      expect(result.sensorUsage).to.equal(100);
+    });
+
+    it('should handle mixed sampleInterval values correctly', () => {
+      const cbgData = [
+        { time: '2023-01-01T00:00:00Z', sampleInterval: 5 * MS_IN_MIN },
+        { time: '2023-01-01T00:05:00Z', sampleInterval: 15 * MS_IN_MIN },
+        { time: '2023-01-01T00:20:00Z', sampleInterval: 5 * MS_IN_MIN },
+      ];
+      const totalTimeMs = 25 * MS_IN_MIN;
+      
+      const result = bgUtils.calculateSensorUsageWithBuckets(cbgData, totalTimeMs);
+      expect(result.bucketsFilled).to.equal(5);
+      expect(result.totalBuckets).to.equal(5);
+      expect(result.sensorUsage).to.equal(100);
+    });
+
+    it('should handle mixed sampleInterval and deviceId sources', () => {
+      const cbgData = [
+        { time: '2023-01-01T00:00:00Z', sampleInterval: 5 * MS_IN_MIN },
+        { time: '2023-01-01T00:05:00Z', deviceId: 'AbbottFreeStyleLibre_XXXXXXX' },
+        { time: '2023-01-01T00:20:00Z', sampleInterval: 5 * MS_IN_MIN },
+      ];
+      const totalTimeMs = 25 * MS_IN_MIN;
+      
+      const result = bgUtils.calculateSensorUsageWithBuckets(cbgData, totalTimeMs);
+      expect(result.bucketsFilled).to.equal(5);
+      expect(result.totalBuckets).to.equal(5);
       expect(result.sensorUsage).to.equal(100);
     });
 
