@@ -1034,7 +1034,7 @@ describe('blood glucose utilities', () => {
         { time: '2023-01-01T00:10:00Z', deviceId: 'Dexcom_XXXXXXX' },
       ];
       const totalTimeMs = 15 * MS_IN_MIN;
-      
+
       const result = bgUtils.calculateSensorUsageWithBuckets(cbgData, totalTimeMs);
       expect(result.sensorUsage).to.equal(100);
       expect(result.bucketsFilled).to.equal(3);
@@ -1048,7 +1048,7 @@ describe('blood glucose utilities', () => {
         { time: '2023-01-01T00:10:00Z', sampleInterval: 5 * MS_IN_MIN },
       ];
       const totalTimeMs = 15 * MS_IN_MIN;
-      
+
       const result = bgUtils.calculateSensorUsageWithBuckets(cbgData, totalTimeMs);
       expect(result.sensorUsage).to.equal(100);
       expect(result.bucketsFilled).to.equal(3);
@@ -1062,7 +1062,7 @@ describe('blood glucose utilities', () => {
         { time: '2023-01-01T00:10:00Z', deviceId: 'Dexcom_XXXXXXX' },
       ];
       const totalTimeMs = 15 * MS_IN_MIN;
-      
+
       const result = bgUtils.calculateSensorUsageWithBuckets(cbgData, totalTimeMs);
       expect(result.sensorUsage).to.equal(100);
       expect(result.bucketsFilled).to.equal(3);
@@ -1076,7 +1076,7 @@ describe('blood glucose utilities', () => {
         { time: '2023-01-01T00:05:00Z', deviceId: 'Dexcom_XXXXXXX' },
       ];
       const totalTimeMs = 10 * MS_IN_MIN;
-      
+
       const result = bgUtils.calculateSensorUsageWithBuckets(cbgData, totalTimeMs);
       expect(result.sensorUsage).to.be.at.most(100);
       expect(result.bucketsFilled).to.equal(2);
@@ -1088,7 +1088,7 @@ describe('blood glucose utilities', () => {
         { time: '2023-01-01T00:15:00Z', deviceId: 'AbbottFreeStyleLibre_XXXXXXX' },
       ];
       const totalTimeMs = 30 * MS_IN_MIN;
-      
+
       const result = bgUtils.calculateSensorUsageWithBuckets(cbgData, totalTimeMs);
       expect(result.bucketsFilled).to.equal(6);
       expect(result.totalBuckets).to.equal(6);
@@ -1101,7 +1101,7 @@ describe('blood glucose utilities', () => {
         { time: '2023-01-01T00:15:00Z', sampleInterval: 15 * MS_IN_MIN },
       ];
       const totalTimeMs = 30 * MS_IN_MIN;
-      
+
       const result = bgUtils.calculateSensorUsageWithBuckets(cbgData, totalTimeMs);
       expect(result.bucketsFilled).to.equal(6);
       expect(result.totalBuckets).to.equal(6);
@@ -1115,7 +1115,7 @@ describe('blood glucose utilities', () => {
         { time: '2023-01-01T00:20:00Z', sampleInterval: 5 * MS_IN_MIN },
       ];
       const totalTimeMs = 25 * MS_IN_MIN;
-      
+
       const result = bgUtils.calculateSensorUsageWithBuckets(cbgData, totalTimeMs);
       expect(result.bucketsFilled).to.equal(5);
       expect(result.totalBuckets).to.equal(5);
@@ -1129,7 +1129,7 @@ describe('blood glucose utilities', () => {
         { time: '2023-01-01T00:20:00Z', sampleInterval: 5 * MS_IN_MIN },
       ];
       const totalTimeMs = 25 * MS_IN_MIN;
-      
+
       const result = bgUtils.calculateSensorUsageWithBuckets(cbgData, totalTimeMs);
       expect(result.bucketsFilled).to.equal(5);
       expect(result.totalBuckets).to.equal(5);
@@ -1150,7 +1150,7 @@ describe('blood glucose utilities', () => {
         { time: '2023-01-01T00:05:00Z', deviceId: 'Dexcom_XXXXXXX' },
       ];
       const totalTimeMs = 10 * MS_IN_MIN;
-      
+
       const result = bgUtils.calculateSensorUsageWithBuckets(cbgData, totalTimeMs);
       expect(result.bucketsFilled).to.equal(2);
     });

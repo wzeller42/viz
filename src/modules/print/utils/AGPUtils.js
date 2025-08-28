@@ -18,7 +18,7 @@ import {
 } from './AGPConstants';
 
 import { DPI, MARGINS, WIDTH, HEIGHT } from './constants';
-import { bankersRound, formatBgValue, formatPercentage } from '../../../utils/format';
+import { formatBgValue, formatPercentage } from '../../../utils/format';
 import { ONE_HR, getTimezoneFromTimePrefs } from '../../../utils/datetime';
 import { classifyBgValue, mungeBGDataBins } from '../../../utils/bloodglucose';
 import { MGDL_UNITS, MS_IN_DAY, MS_IN_HOUR, BGM_DATA_KEY, CGM_DATA_KEY } from '../../../utils/constants';
@@ -85,7 +85,7 @@ export const calculateCGMDataSufficiency = (data = {}) => {
     moment.utc(newestDatum.time).tz(getTimezoneFromTimePrefs(data.timePrefs)).subtract(index, 'days').format('YYYY-MM-DD')
   )).reverse();
 
-  const sensorUsageByDate = _.map(cgmCalendarDays, (date, index) => {
+  const sensorUsageByDate = _.map(cgmCalendarDays, (date) => {
     const {
       count: countForDate,
       sampleFrequency: sampleFrequencyForDate,
@@ -93,21 +93,24 @@ export const calculateCGMDataSufficiency = (data = {}) => {
       totalBuckets: totalBucketsForDate,
     } = statsByDate[date]?.sensorUsage || {};
 
-    const {
-      newestDatum: newestDatumForDate = {},
-      oldestDatum: oldestDatumForDate = {},
-    } = statsByDate[date]?.bgExtents || {};
-
     if (!sampleFrequencyForDate || !countForDate) {
       return { sufficiencyMet: false, sensorUsage: 0 };
     }
 
     const minCount = MS_IN_HOUR / sampleFrequencyForDate;
 
-    const sensorUsage = totalBucketsForDate > 0 ? (bucketsFilledForDate / totalBucketsForDate) * 100 : 0;
+    const sensorUsage = totalBucketsForDate > 0 ?
+      (bucketsFilledForDate / totalBucketsForDate) * 100 : 0;
     const sufficiencyMet = countForDate >= minCount;
 
-    return ({ count: countForDate, date, bucketsFilledForDate, totalBucketsForDate, sensorUsage, sufficiencyMet });
+    return ({
+      count: countForDate,
+      date,
+      bucketsFilledForDate,
+      totalBucketsForDate,
+      sensorUsage,
+      sufficiencyMet,
+    });
   });
 
   // AGP section requires that each day in the top 7 have at least an hour of data, and an average

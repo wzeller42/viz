@@ -258,36 +258,38 @@ export function calculateSensorUsageWithBuckets(cbgData, totalTimeMs) {
 
   const BUCKET_SIZE_MS = 5 * MS_IN_MIN;
   const BLACKOUT_THRESHOLD_MS = 4 * MS_IN_MIN + 50 * 1000;
-  
+
   const totalBuckets = Math.ceil(totalTimeMs / BUCKET_SIZE_MS);
   const filledBuckets = new Set();
-  
+
   const sortedData = _.sortBy(cbgData, 'time');
-  
+
   let lastProcessedTime = null;
-  
-  for (const datum of sortedData) {
+
+  _.forEach(sortedData, (datum) => {
     const currentTime = new Date(datum.time).getTime();
-    
+
     if (lastProcessedTime && (currentTime - lastProcessedTime) <= BLACKOUT_THRESHOLD_MS) {
-      continue;
+      return;
     }
-    
+
     const sampleInterval = datum.sampleInterval || cgmSampleFrequency(datum);
     const bucketsToFill = Math.ceil(sampleInterval / BUCKET_SIZE_MS);
-    
-    const startBucket = Math.floor((currentTime - new Date(sortedData[0].time).getTime()) / BUCKET_SIZE_MS);
-    
-    for (let i = 0; i < bucketsToFill && (startBucket + i) < totalBuckets; i++) {
+
+    const startBucket = Math.floor(
+      (currentTime - new Date(sortedData[0].time).getTime()) / BUCKET_SIZE_MS
+    );
+
+    for (let i = 0; i < bucketsToFill && (startBucket + i) < totalBuckets; i += 1) {
       filledBuckets.add(startBucket + i);
     }
-    
+
     lastProcessedTime = currentTime;
-  }
-  
+  });
+
   const bucketsFilled = filledBuckets.size;
   const sensorUsage = totalBuckets > 0 ? (bucketsFilled / totalBuckets) * 100 : 0;
-  
+
   return { sensorUsage, bucketsFilled, totalBuckets };
 }
 

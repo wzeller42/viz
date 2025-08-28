@@ -1157,6 +1157,8 @@ export const createAGPData = bgSource => ({
               total: 86400000,
               sampleFrequency: 300000,
               count: 125,
+              bucketsFilled: 125,
+              totalBuckets: 125,
             },
           },
           '2023-03-15': {
@@ -1179,6 +1181,8 @@ export const createAGPData = bgSource => ({
               total: 86400000,
               sampleFrequency: 300000,
               count: 288,
+              bucketsFilled: 288,
+              totalBuckets: 288,
             },
           },
           '2023-03-14': {
@@ -1201,6 +1205,8 @@ export const createAGPData = bgSource => ({
               total: 86400000,
               sampleFrequency: 300000,
               count: 288,
+              bucketsFilled: 288,
+              totalBuckets: 288,
             },
           },
           '2023-03-13': {
@@ -1223,6 +1229,8 @@ export const createAGPData = bgSource => ({
               total: 86400000,
               sampleFrequency: 300000,
               count: 288,
+              bucketsFilled: 288,
+              totalBuckets: 288,
             },
           },
           '2023-03-12': {
@@ -1245,6 +1253,8 @@ export const createAGPData = bgSource => ({
               total: 86400000,
               sampleFrequency: 300000,
               count: 276,
+              bucketsFilled: 276,
+              totalBuckets: 288,
             },
           },
           '2023-03-11': {
@@ -1267,6 +1277,8 @@ export const createAGPData = bgSource => ({
               total: 86400000,
               sampleFrequency: 300000,
               count: 262,
+              bucketsFilled: 262,
+              totalBuckets: 288,
             },
           },
           '2023-03-10': {
@@ -1289,6 +1301,8 @@ export const createAGPData = bgSource => ({
               total: 86400000,
               sampleFrequency: 300000,
               count: 288,
+              bucketsFilled: 288,
+              totalBuckets: 288,
             },
           },
           '2023-03-09': {
@@ -1311,6 +1325,8 @@ export const createAGPData = bgSource => ({
               total: 86400000,
               sampleFrequency: 300000,
               count: 287,
+              bucketsFilled: 287,
+              totalBuckets: 288,
             },
           },
           '2023-03-08': {
@@ -1333,6 +1349,8 @@ export const createAGPData = bgSource => ({
               total: 86400000,
               sampleFrequency: 300000,
               count: 288,
+              bucketsFilled: 288,
+              totalBuckets: 288,
             },
           },
           '2023-03-07': {
@@ -1355,6 +1373,8 @@ export const createAGPData = bgSource => ({
               total: 86400000,
               sampleFrequency: 300000,
               count: 266,
+              bucketsFilled: 266,
+              totalBuckets: 288,
             },
           },
           '2023-03-06': {
@@ -1377,6 +1397,8 @@ export const createAGPData = bgSource => ({
               total: 86400000,
               sampleFrequency: 300000,
               count: 282,
+              bucketsFilled: 282,
+              totalBuckets: 288,
             },
           },
           '2023-03-05': {
@@ -1399,6 +1421,8 @@ export const createAGPData = bgSource => ({
               total: 86400000,
               sampleFrequency: 300000,
               count: 288,
+              bucketsFilled: 288,
+              totalBuckets: 288,
             },
           },
           '2023-03-04': {
@@ -1421,6 +1445,8 @@ export const createAGPData = bgSource => ({
               total: 86400000,
               sampleFrequency: 300000,
               count: 289,
+              bucketsFilled: 289,
+              totalBuckets: 288,
             },
           },
           '2023-03-03': {
@@ -1443,6 +1469,8 @@ export const createAGPData = bgSource => ({
               total: 86400000,
               sampleFrequency: 300000,
               count: 282,
+              bucketsFilled: 282,
+              totalBuckets: 288,
             },
           },
         },
@@ -1500,6 +1528,8 @@ export const createAGPData = bgSource => ({
           total: 1209600000,
           sampleFrequency: 300000,
           count: 3797,
+          bucketsFilled: 3797,
+          totalBuckets: 4032,
         },
         glucoseManagementIndicator: {
           glucoseManagementIndicator: 7.31707562255688,

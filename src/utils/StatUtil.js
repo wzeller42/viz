@@ -266,7 +266,7 @@ export class StatUtil {
     const count = cbgData.length;
 
     const total = this.activeDays * MS_IN_DAY;
-    
+
     const bucketResult = calculateSensorUsageWithBuckets(cbgData, total);
     const duration = (bucketResult.sensorUsage / 100) * total;
 
@@ -284,8 +284,11 @@ export class StatUtil {
       cgmMinutesWorn = Math.ceil(moment.utc(newestDatum?.time).diff(moment.utc(oldestDatum?.time), 'minutes', true));
     }
 
-    const totalPossibleBuckets = Math.ceil((cgmMinutesWorn * MS_IN_MIN) / (5 * MS_IN_MIN));
-    const sensorUsageAGP = totalPossibleBuckets > 0 ? (bucketResult.bucketsFilled / totalPossibleBuckets) * 100 : 0;
+    const totalPossibleBuckets = Math.ceil(
+      (cgmMinutesWorn * MS_IN_MIN) / (5 * MS_IN_MIN)
+    );
+    const sensorUsageAGP = totalPossibleBuckets > 0 ?
+      (bucketResult.bucketsFilled / totalPossibleBuckets) * 100 : 0;
 
     return {
       sensorUsage: duration,
